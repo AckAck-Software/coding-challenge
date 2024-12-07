@@ -21,21 +21,41 @@ function readLocalJson(filePath, callback) {
 // ===== Calculation Functions =====
 
 function calculateRevenue(inputData) {
-    let revenueTotal = 0;
+    let revenueCount = 0;
     inputData.forEach(account => {
         if (account.account_category === "revenue") {
-            revenueTotal += account.total_value;
+            revenueCount += account.total_value;
         }
     });
-    console.log(revenueTotal);
+    return Math.trunc(revenueCount); //Calling trunc() to remove cents
 }
 
 function calculateExpenses(inputData) {
-    // TODO: Calculate Expenses
+    let expensesCount = 0;
+    inputData.forEach(account => {
+        if (account.account_category === "expense") {
+            expensesCount += account.total_value;
+        }
+    });
+    return Math.trunc(expensesCount);
 }
 
-function calculateGrossProfitMargin(inputData) {
-    // TODO: Calculate Gross Profit
+function calculateGrossProfitMargin(inputData, revenue) {
+    let valueCount = 0;
+    inputData.forEach(account => {
+        if (account.account_type === "sales" && account.value_type === 'debit') {
+            console.log("wahoo");
+            valueCount += account.total_value;
+        }
+
+    }
+    );
+    if (valueCount === 0) {
+        console.error("valueCount in calculateGrossProfitMargin() is 0! Are there no valid accounts?");
+        //Error in the event that no accounts in .json compatible with GPM calculation
+        return;
+    }
+    return (valueCount/revenue) * 100;
 }
 
 function calculateNetProfitMargin(inputData) {
@@ -47,14 +67,17 @@ function calculateWorkingCapitalRatio(inputData) {
 }
 
 function calculateTotal(inputData) {
-    calculateRevenue(inputData);
-    calculateExpenses(inputData);
-    calculateGrossProfitMargin(inputData);
+    let totalRevenue = (calculateRevenue(inputData));
+    console.log("Revenue: $", totalRevenue);
+    let totalExpenses = (calculateExpenses(inputData));
+    console.log("Expenses: $", totalExpenses);
+    let totalGPM = calculateGrossProfitMargin(inputData, totalRevenue); //Will do this cleaner, just testing for now
+    console.log ("Gross Profit Margin: %", totalGPM);
     calculateNetProfitMargin(inputData);
     calculateWorkingCapitalRatio(inputData);
 }
 
 // Read the file, then run through calculations
 readLocalJson(accountFilePath, (accountData) => {
-    calculateTotal(accountData); 
+    calculateTotal(accountData);
 });
