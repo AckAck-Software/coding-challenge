@@ -27,7 +27,7 @@ function calculateRevenue(inputData) {
             revenueCount += account.total_value;
         }
     });
-    return Math.trunc(revenueCount); //Calling trunc() to remove cents
+    return revenueCount; //Calling trunc() to remove cents
 }
 
 function calculateExpenses(inputData) {
@@ -37,7 +37,7 @@ function calculateExpenses(inputData) {
             expensesCount += account.total_value;
         }
     });
-    return Math.trunc(expensesCount);
+    return expensesCount;
 }
 
 function calculateGrossProfitMargin(inputData, revenue) {
@@ -46,7 +46,6 @@ function calculateGrossProfitMargin(inputData, revenue) {
         if (account.account_type === "sales" && account.value_type === 'debit') {
             valueCount += account.total_value;
         }
-
     }
     );
     if (valueCount === 0) {
@@ -54,7 +53,6 @@ function calculateGrossProfitMargin(inputData, revenue) {
         //Error in the event that no accounts in .json compatible with GPM calculation
         return;
     }
-    console.log(valueCount);
     return (valueCount/revenue) * 100;
 }
 
@@ -64,19 +62,70 @@ function calculateNetProfitMargin(inputData, totalRevenue, totalExpenses) {
 }
 
 function calculateWorkingCapitalRatio(inputData) {
-    // TODO: Calculate WCR
+    let calculatedAssets = calculateAssets(inputData);
+    let calculatedLiabilities = calculateLiabilities(inputData);
+    if (calculatedAssets === 0 || calculatedLiabilities === 0) {
+        console.log ("Calculated Assets is ", calculatedAssets, " and calculated liabilities is ", calculatedLiabilities);
+        console.error ("Can not calculate Working Capital Rato!"); // Throw and error and return 0, otherwise in the event of diving by 0 we could return NaN - which is not ideal
+        return 0;
+    }
+    return (calculatedAssets / calculatedLiabilities) * 100;
+}
+
+function calculateAssets(inputData) {
+    console.log ("CALCULATING ASSETS");
+    let assetCount = 0;
+    inputData.forEach(account => {
+        if (account.account_category === "assets" && (account.account_type === 'current' || account.account_type === 'bank' || account.account_type === 'current_accounts_receivable')) {
+            if (account.value_type === 'debit'){
+            console.log(account.account_name, " is adding ", account.total_value );
+            assetCount += account.total_value;
+            }
+            else if (account.value_type === 'credit'){ 
+                console.log(account.account_name, " is subtracting ", account.total_value);
+                assetCount -= account.total_value;
+            }
+            else {
+                console.error ("Account is not credit or debit!");
+            }
+        }
+    });
+    console.log (assetCount);
+    return assetCount;
+}
+function calculateLiabilities(inputData) {
+    console.log ("CALCULATING LIABILITIES");
+    let liabilityCount = 0;
+    inputData.forEach(account => {
+        if (account.account_category === "liability" && (account.account_type === 'current' || account.account_type === 'current_accounts_payable')) {
+            if (account.value_type === 'credit'){
+            console.log(account.account_name, " is adding ", account.total_value );
+            liabilityCount += account.total_value;
+            }
+            else if (account.value_type === 'debit') {
+                console.log(account.account_name, " is subtracting ", account.total_value);
+                liabilityCount -= account.total_value;
+            }
+            else {
+                console.error ("Account is not credit or debit!");
+            }
+        }
+    });
+    console.log (liabilityCount);
+    return liabilityCount;
 }
 
 function calculateTotal(inputData) {
     let totalRevenue = (calculateRevenue(inputData));
-    console.log("Revenue: $", totalRevenue);
-    let totalExpenses = (calculateExpenses(inputData));
+    console.log("Revenue: $", Math.trunc(totalRevenue));
+    let totalExpenses = (Math.trunc(calculateExpenses(inputData)));
     console.log("Expenses: $", totalExpenses);
-    let totalGPM = calculateGrossProfitMargin(inputData, totalRevenue); //Will do this cleaner, just testing for now
+    let totalGPM = calculateGrossProfitMargin(inputData, totalRevenue);
     console.log ("Gross Profit Margin: %", totalGPM);
     let totalNetProfitMargin = calculateNetProfitMargin(inputData, totalRevenue, totalExpenses);
     console.log ("Net Profit Margin: %", totalNetProfitMargin)
-    calculateWorkingCapitalRatio(inputData);
+    let totalWorkingCapitalRatio = calculateWorkingCapitalRatio(inputData);
+    console.log (totalWorkingCapitalRatio);
 }
 
 // Read the file, then run through calculations
