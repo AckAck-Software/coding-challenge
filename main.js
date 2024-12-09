@@ -27,7 +27,7 @@ function calculateRevenue(inputData) {
             revenueCount += account.total_value;
         }
     });
-    return revenueCount; //Calling trunc() to remove cents
+    return revenueCount; 
 }
 
 function calculateExpenses(inputData) {
@@ -73,16 +73,13 @@ function calculateWorkingCapitalRatio(inputData) {
 }
 
 function calculateAssets(inputData) {
-    console.log ("CALCULATING ASSETS");
     let assetCount = 0;
     inputData.forEach(account => {
         if (account.account_category === "assets" && (account.account_type === 'current' || account.account_type === 'bank' || account.account_type === 'current_accounts_receivable')) {
             if (account.value_type === 'debit'){
-            console.log(account.account_name, " is adding ", account.total_value );
             assetCount += account.total_value;
             }
             else if (account.value_type === 'credit'){ 
-                console.log(account.account_name, " is subtracting ", account.total_value);
                 assetCount -= account.total_value;
             }
             else {
@@ -90,16 +87,13 @@ function calculateAssets(inputData) {
             }
         }
     });
-    console.log (assetCount);
     return assetCount;
 }
 function calculateLiabilities(inputData) {
-    console.log ("CALCULATING LIABILITIES");
     let liabilityCount = 0;
     inputData.forEach(account => {
         if (account.account_category === "liability" && (account.account_type === 'current' || account.account_type === 'current_accounts_payable')) {
             if (account.value_type === 'credit'){
-            console.log(account.account_name, " is adding ", account.total_value );
             liabilityCount += account.total_value;
             }
             else if (account.value_type === 'debit') {
@@ -111,21 +105,20 @@ function calculateLiabilities(inputData) {
             }
         }
     });
-    console.log (liabilityCount);
     return liabilityCount;
 }
 
 function calculateTotal(inputData) {
     let totalRevenue = (calculateRevenue(inputData));
-    console.log("Revenue: $", Math.trunc(totalRevenue));
+    console.log("Revenue: $", Math.trunc(totalRevenue).toLocaleString('en-AU'));
     let totalExpenses = (Math.trunc(calculateExpenses(inputData)));
-    console.log("Expenses: $", totalExpenses);
+    console.log("Expenses: $", totalExpenses.toLocaleString('en-AU'));
     let totalGPM = calculateGrossProfitMargin(inputData, totalRevenue);
-    console.log ("Gross Profit Margin: %", totalGPM);
-    let totalNetProfitMargin = calculateNetProfitMargin(inputData, totalRevenue, totalExpenses);
-    console.log ("Net Profit Margin: %", totalNetProfitMargin)
+    console.log ("Gross Profit Margin: %", (Math.round(totalGPM * 10) /10).toLocaleString('en-AU'));
+    let totalNetProfitMargin = calculateNetProfitMargin(inputData, totalRevenue, totalExpenses);  
+    console.log ("Net Profit Margin: %", (Math.round(totalNetProfitMargin*10) /10).toLocaleString('en-AU'));
     let totalWorkingCapitalRatio = calculateWorkingCapitalRatio(inputData);
-    console.log (totalWorkingCapitalRatio);
+    console.log ("Working Capital Ratio: %", (Math.round(totalWorkingCapitalRatio * 10) /10).toLocaleString('en-AU'));
 }
 
 // Read the file, then run through calculations
