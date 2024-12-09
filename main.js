@@ -44,7 +44,6 @@ function calculateGrossProfitMargin(inputData, revenue) {
     let valueCount = 0;
     inputData.forEach(account => {
         if (account.account_type === "sales" && account.value_type === 'debit') {
-            console.log("wahoo");
             valueCount += account.total_value;
         }
 
@@ -55,11 +54,13 @@ function calculateGrossProfitMargin(inputData, revenue) {
         //Error in the event that no accounts in .json compatible with GPM calculation
         return;
     }
+    console.log(valueCount);
     return (valueCount/revenue) * 100;
 }
 
-function calculateNetProfitMargin(inputData) {
-    // TODO: Calculate Net Profit
+function calculateNetProfitMargin(inputData, totalRevenue, totalExpenses) {
+    let netProfit = totalRevenue - totalExpenses;
+    return (netProfit / totalRevenue) * 100; // Will clean up in a moment
 }
 
 function calculateWorkingCapitalRatio(inputData) {
@@ -73,7 +74,8 @@ function calculateTotal(inputData) {
     console.log("Expenses: $", totalExpenses);
     let totalGPM = calculateGrossProfitMargin(inputData, totalRevenue); //Will do this cleaner, just testing for now
     console.log ("Gross Profit Margin: %", totalGPM);
-    calculateNetProfitMargin(inputData);
+    let totalNetProfitMargin = calculateNetProfitMargin(inputData, totalRevenue, totalExpenses);
+    console.log ("Net Profit Margin: %", totalNetProfitMargin)
     calculateWorkingCapitalRatio(inputData);
 }
 
