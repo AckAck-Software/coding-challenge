@@ -192,7 +192,7 @@ function testCalculateExpenses() {
     console.log('Expected: 1734, Result:', result);
     console.assert(result === 1734, 'Test failed: Expense calculation is incorrect');
     
-    // Test case when there are no revenue accounts in the .json
+    // Test case when there are no expense accounts in the .json
     const inputDataEmptyRevenue = [
         { account_category: 'expense', total_value: 500 },
         { account_category: 'liability', total_value: 1000 }
